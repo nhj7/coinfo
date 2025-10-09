@@ -1,5 +1,5 @@
 import { defineWebSocketHandler } from 'h3';
-import { encode, decode } from '@msgpack/msgpack';
+//import { encode, decode } from '@msgpack/msgpack';
 
 /**
  * WebSocket 메시지 압축 사용 여부
@@ -7,8 +7,14 @@ import { encode, decode } from '@msgpack/msgpack';
 const USE_COMPRESSION = true;
 
 /**
+ * @deprecated defineWebSocketHandler는 BUN 개발 모드에서 동작하지 않습니다.
+ *
  * WebSocket 핸들러
  * msgpack을 사용하여 메시지를 압축/해제하고 에코 응답
+ *
+ * ⚠️ DEPRECATED: BUN 개발 모드에서 WebSocket이 정상적으로 동작하지 않음
+ * - nodePeer로 동작되면서 동작 안됨
+ * - `bun run preview`, `bun run prod`로 실행하는 경우 정상 동작함
  */
 export default defineWebSocketHandler({
   /**

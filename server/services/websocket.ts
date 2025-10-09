@@ -1,5 +1,3 @@
-
-// @ts-expect-error - Bun types may not be available in all environments
 import type { ServerWebSocket } from 'bun';
 import { encode } from '@msgpack/msgpack';
 
@@ -12,7 +10,7 @@ const GLOBAL_SERVER_KEY = '__COINFO_WEBSOCKET_SERVER__';
 /**
  * globalThis에서 서버 인스턴스 가져오기
  */
-function getServerInstance(): any {
+function getServerInstance() {
   // @ts-expect-error - globalThis에 커스텀 속성 추가
   return globalThis[GLOBAL_SERVER_KEY] || null;
 }
@@ -20,7 +18,7 @@ function getServerInstance(): any {
 /**
  * globalThis에 서버 인스턴스 저장
  */
-function setServerInstance(instance: any): void {
+function setServerInstance(instance: Bun.Server | null): void {
   // @ts-expect-error - globalThis에 커스텀 속성 추가
   globalThis[GLOBAL_SERVER_KEY] = instance;
 }
@@ -51,9 +49,7 @@ export function startWebSocketServer(): void {
     }
 
     // Bun 런타임 체크
-    // @ts-expect-error - Bun specific option
     if (typeof globalThis.Bun === 'undefined') {
-        // @ts-expect-error - Bun specific option
         console.error('[WebSocket] Bun runtime not available', globalThis.Bun, Bun);
         return
     }
@@ -73,15 +69,11 @@ export function startWebSocketServer(): void {
     }
 
     console.log(`[WebSocket] Starting server on port ${PORT}...`)
-    // @ts-expect-error - Bun specific option
     const serverInstance = globalThis.Bun.serve({
         port: PORT,
-
-        compression: true,
-        // @ts-expect-error - Bun specific option
         fetch(req, server) {
             const url = new URL(req.url);
-            const pathParts = url.pathname.split('/').filter(Boolean);
+            //const pathParts = url.pathname.split('/').filter(Boolean);
 
             // WebSocket 업그레이드
             if (url.pathname === '/ws') {
@@ -91,38 +83,32 @@ export function startWebSocketServer(): void {
                         subscriptions: new Set<string>(),
                     },
                 });
-
                 if (!upgraded) {
                     return new Response('WebSocket upgrade failed', { status: 400 });
                 }
-
                 return undefined;
             }
-
             // Health check
             if (url.pathname === '/health') {
                 return new Response('OK', { status: 200 });
             }
-
-
-
             return new Response('Not Found', { status: 404 });
         },
 
         websocket: {
-            open(ws: ServerWebSocket): void {
+            open(ws: ServerWebSocket<ClientData>): void {
                 console.log("open");
                 handleOpen(ws);
             },
 
-            message(ws: ServerWebSocket, message: object): void {
-                console.log("message");
-                //handleMessage(ws, message);
-                send(ws,message);
+            message(ws: ServerWebSocket<ClientData>, message: string | Buffer): void {
+                console.log("message", message);
+                handleMessage(ws, message);
             },
 
-            close(ws: ServerWebSocket): void {
-                console.log("3");
+            close(ws: ServerWebSocket<ClientData>): void {
+                console.log("close");
+                handleClose(ws);
             },
         },
 

@@ -1,4 +1,4 @@
-import { startUpbitMonitoring } from '../services/upbit';
+import {connectUpbit, disconnectUpbit} from '../services/upbit';
 import { startWebSocketServer, stopServer } from '../services/websocket';
 
 export default defineNitroPlugin((nitroApp) => {
@@ -16,7 +16,7 @@ export default defineNitroPlugin((nitroApp) => {
         console.log('[Plugin] Exchanges skipped (build/prerender mode)');
         return;
     }
-    startUpbitMonitoring();
+    connectUpbit();
 
     // WebSocket 서버 시작
     startWebSocketServer();
@@ -25,6 +25,7 @@ export default defineNitroPlugin((nitroApp) => {
     nitroApp.hooks.hook('close', () => {
         console.log('[Plugin] Nitro close hook called, stopping WebSocket server...');
         stopServer();
+        disconnectUpbit();
     });
 
     // Nitro 훅: 개발 모드 리로드 전 정리
