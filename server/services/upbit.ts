@@ -7,7 +7,7 @@ import type {
     MarketInfo,
     Timer,
     UpbitMarket
-} from "~~/types";
+} from "#shared/types";
 
 const UPBIT_WS_URL = 'wss://api.upbit.com/websocket/v1';
 const UPBIT_MARKET_API = 'https://api.upbit.com/v1/market/all';
@@ -45,18 +45,31 @@ class UpbitConnector implements ExchangeConnector {
         this.ws = new WebSocket(UPBIT_WS_URL);
 
         this.ws.onopen = () => {
-            console.log('[Upbit] Connected');
+            const implementation = this.ws?.constructor?.name || 'Unknown';
+            console.log(`[Upbit] Connected using '${implementation}' implementation.`);
             this.connectedAt = Date.now();
             this.subscribe();
         };
 
         this.ws.onmessage = async (event) => {
             try {
-                // Bun에서 ArrayBuffer를 문자열로 변환
-                const buffer = await Bun.readableStreamToArrayBuffer(
-                    new Response(event.data).body!
-                );
-                const text = new TextDecoder().decode(buffer);
+                let text: string;
+
+                // event.data 타입에 따라 처리
+                if (typeof event.data === 'string') {
+                    // 이미 문자열인 경우
+                    text = event.data;
+                } else if (event.data instanceof ArrayBuffer) {
+                    // ArrayBuffer인 경우
+                    text = new TextDecoder().decode(event.data);
+                } else if (event.data instanceof Blob) {
+                    // Blob인 경우 (브라우저 환경)
+                    text = await event.data.text();
+                } else {
+                    // 기타: Buffer 등
+                    text = event.data.toString();
+                }
+
                 const tickers: UpbitTickerResponse[] = JSON.parse(text);
 
                 if (tickers && tickers.length > 0 && tickers[0].ty === 'ticker') {
@@ -126,7 +139,7 @@ class UpbitConnector implements ExchangeConnector {
         ];
 
         this.ws.send(JSON.stringify(subscribeMessage));
-        console.log('[Upbit] Subscribed to:', this.symbols);
+        console.log('[Upbit] Subscribed length:', this.symbols.length);
     }
 
     /**
@@ -176,6 +189,12 @@ class UpbitConnector implements ExchangeConnector {
                 } else if (ticker.tp < prevPrice) {
                     priceDirection = -1;
                 }
+            }
+            
+            // 가격 변동이 없으면 업데이트를 건너뜁니다.
+            // 이는 불필요한 데이터 생성 및 브로드캐스트를 방지하여 성능을 향상시킵니다.
+            if (prevPrice && priceDirection === 0) {
+                return; // forEach 루프의 다음 아이템으로 넘어갑니다.
             }
 
             // 티커 데이터 생성

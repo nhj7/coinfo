@@ -5,7 +5,7 @@ import type {
     Ticker,
     MarketInfo,
     ExchangeData
-} from "~~/types";
+} from "#shared/types";
 /**
  * 전역 마켓 데이터 저장소
  * 구조: 거래소 > 심볼 > 시세 데이터

@@ -1,6 +1,4 @@
 <script setup lang="ts">
-import type { Ticker } from '~~/types';
-
 // 샘플 데이터 (나중에 WebSocket으로 대체)
 const tickers = ref<Ticker[]>([
   {

@@ -1,5 +1,7 @@
 import {connectUpbit, disconnectUpbit} from '../services/upbit';
-import { startWebSocketServer, stopServer } from '../services/websocket';
+import {broadcastUpdate, startWebSocketServer, stopServer} from '../services/websocket';
+import {closePeers} from "~~/server/routes/ws";
+import {setBroadcastCallback} from "~~/server/store/marketData";
 
 export default defineNitroPlugin((nitroApp) => {
     console.log('Nitro plugin init')
@@ -16,6 +18,11 @@ export default defineNitroPlugin((nitroApp) => {
         console.log('[Plugin] Exchanges skipped (build/prerender mode)');
         return;
     }
+
+    // ✅ Broadcast callback 등록 (Store → WebSocket)
+    setBroadcastCallback(broadcastUpdate);
+
+    // 거래소 연결
     connectUpbit();
 
     // WebSocket 서버 시작
@@ -26,6 +33,7 @@ export default defineNitroPlugin((nitroApp) => {
         console.log('[Plugin] Nitro close hook called, stopping WebSocket server...');
         stopServer();
         disconnectUpbit();
+        closePeers();
     });
 
     // Nitro 훅: 개발 모드 리로드 전 정리

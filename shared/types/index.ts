@@ -5,9 +5,29 @@
 export type Timer = ReturnType<typeof setTimeout>;
 
 /**
- * 거래소 타입
+ * 지원하는 거래소 목록 (런타임용)
+ * 배열 인덱스 = 거래소 ID (0: upbit, 1: binance)
  */
-export type ExchangeType = 'upbit' | 'binance';
+export const EXCHANGES =  ['upbit', 'binance'] as const;
+
+/**
+ * 지원하는 거래소 타입 (타입스크립트용)
+ * 'upbit' | 'binance'
+ */
+export type ExchangeType = typeof EXCHANGES[number];
+
+/**
+ * 거래소 ID 타입 (배열 인덱스)
+ */
+export type ExchangeIdType = 0 | 1;
+
+/**
+ * 거래소명 → ID 매핑 (O(1))
+ */
+export const EXCHANGE_TO_ID: Record<ExchangeType, ExchangeIdType> = {
+    upbit: 0,
+    binance: 1,
+} as const;
 
 export interface UpbitMarket {
     market: string;
@@ -54,33 +74,45 @@ export interface Ticker {
     /** timestamp: 업데이트 시각 (ms) */
     //ts: number;
 }
-export type TickerArrayEnum = {
-    /** exchange: 거래소 */
-    exchange: 0
-    /** symbol: 심볼 */
-    symbol: 1
-    price: 2
-    priceDirection: 3
-    change24h: 4
-    changePrice24h: 5
-    price24h: 6
-}
-export type TickerArray = [
-    /** exchange: 거래소 */
-    string
-    /** symbol: 심볼 */
-    , string
-    /** price: 현재가 */
-    , number
-    /** priceDirection: 가격 변동 방향 (u=up, d=down, e=even) */
-    , PriceDirection
-    /** change24h: 전일대비 변화율 (%) */
-    , number
-    /** changePrice24h: 전일대비 변화 금액 */
-    , number
-    /** price24h: 24시간 거래금액 */
-    , number
-]
+/**
+ * 티커 압축 배열 스키마 (단일 진실의 원천)
+ * 여기만 수정하면 TickerCompact 타입과 TickerCompactIndex가 자동으로 동기화됩니다
+ */
+export const TickerCompactSchema = {
+    exchange: { index: 0, type: 0 as ExchangeIdType },
+    symbol: { index: 1, type: '' as string },
+    price: { index: 2, type: 0 as number },
+    priceDirection: { index: 3, type: 0 as PriceDirection },
+    change24h: { index: 4, type: 0 as number },
+    changePrice24h: { index: 5, type: 0 as number },
+    price24h: { index: 6, type: 0 as number }
+} as const;
+
+/**
+ * 티커 압축 배열 인덱스 (자동 생성)
+ */
+export const TickerCompactIndex = {
+    exchange: TickerCompactSchema.exchange.index,
+    symbol: TickerCompactSchema.symbol.index,
+    price: TickerCompactSchema.price.index,
+    priceDirection: TickerCompactSchema.priceDirection.index,
+    change24h: TickerCompactSchema.change24h.index,
+    changePrice24h: TickerCompactSchema.changePrice24h.index,
+    price24h: TickerCompactSchema.price24h.index
+} as const;
+
+/**
+ * 티커 압축 배열 타입 (자동 생성)
+ */
+export type TickerCompact = [
+    typeof TickerCompactSchema.exchange.type,
+    typeof TickerCompactSchema.symbol.type,
+    typeof TickerCompactSchema.price.type,
+    typeof TickerCompactSchema.priceDirection.type,
+    typeof TickerCompactSchema.change24h.type,
+    typeof TickerCompactSchema.changePrice24h.type,
+    typeof TickerCompactSchema.price24h.type
+];
 
 
 /**
@@ -213,3 +245,60 @@ export interface ExchangeConnector {
     disconnect(): void;
     isConnected(): boolean;
 }
+
+/** 기본 WebSocket 메시지 인터페이스 */
+interface BaseWebSocketMessage {
+    /** 메시지 타입 */
+    t: string;
+}
+
+/** 연결 완료 메시지 */
+export interface WsConnectedMessage extends BaseWebSocketMessage {
+    t: 'connected';
+    /** 연결 id */
+    id: string;
+    /** 연결 메세지 */
+    message: string;
+}
+
+/** Symbol Dictionary 메시지 */
+export interface WsSymbolDictMessage extends BaseWebSocketMessage {
+    t: 'symbolDict';
+    /** Symbol 목록 */
+    data: string[];
+}
+
+/** Symbol 추가 메시지 */
+export interface WsSymbolAddMessage extends BaseWebSocketMessage {
+    t: 'symbolAdd';
+    /** Symbol ID */
+    id: number;
+    /** Symbol 이름 */
+    symbol: string;
+}
+
+/** 티커 메시지 */
+export interface WsTickersMessage extends BaseWebSocketMessage {
+    t: 'tickers';
+    /** 티커 배열 (압축 형식) */
+    d: TickerCompact[];
+    /** 전송 시각 */
+    ts: number;
+}
+
+/** 에러 메시지 */
+export interface WsErrorMessage extends BaseWebSocketMessage {
+    t: 'error';
+    /** 에러 코드 */
+    code: string;
+    /** 에러 메시지 */
+    message: string;
+}
+
+/** WebSocket 메시지 Union 타입 */
+export type WebSocketMessage =
+    | WsConnectedMessage
+    | WsSymbolDictMessage
+    | WsSymbolAddMessage
+    | WsTickersMessage
+    | WsErrorMessage;

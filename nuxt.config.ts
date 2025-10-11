@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 export default defineNuxtConfig({
   app : {
     head : {
+        titleTemplate: '%s - coinfo',
         script : [
             {
                 type: 'text/javascript',
@@ -37,29 +38,10 @@ export default defineNuxtConfig({
     experimental: {
       websocket: true,
     },
-    devProxy: {
-      '/ws': {
-        target: 'ws://localhost:3003/ws',
-        ws: true,
-        changeOrigin: true,
-      },
-    },
   },
-  routeRules: {
-    '/ws': { proxy: 'http://localhost:3003/ws' },
-  },
+
   vite: {
     plugins: [tailwindcss()],
-    server: {
-      proxy: {
-        // WebSocket 프록시: ws://localhost:3000/ws -> ws://localhost:3003/ws
-        '/ws': {
-          target: 'ws://localhost:3003',
-          ws: true,
-          changeOrigin: true,
-        },
-      },
-    },
   },
   modules: [
     '@nuxt/content',
@@ -71,4 +53,5 @@ export default defineNuxtConfig({
     '@nuxt/test-utils',
   ]
   , css: ["~/assets/css/main.css"],
+
 })

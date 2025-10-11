@@ -94,50 +94,51 @@ const closeDrawer = () => {
 </script>
 
 <template>
-<div class="drawer">
-  <input id="my-drawer-2" type="checkbox" class="drawer-toggle" ref="drawerToggle" />
-
-  <div class="drawer-content">
-    <!-- Navbar -->
-    <div class="navbar bg-base-300 sticky top-0 z-50">
-      <div class="flex-none lg:hidden">
-        <label for="my-drawer-2" aria-label="open sidebar" class="btn btn-square btn-ghost">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-6 w-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </label>
-      </div>
-      <div class="flex-1">
-        <a class="btn btn-ghost text-xl">coinfo</a>
-      </div>
-      <!-- 테마 변경 콤보박스 -->
-      <div class="flex-none">
-        <!-- daisyUI Dropdown으로 교체 -->
-        <div v-show="isDropdownVisible" class="dropdown dropdown-end">
-          <div ref="themeDropdownButton" tabindex="0" role="button" class="btn btn-ghost normal-case">
-            <Icon :name="`mdi:${themeIcons[themes.indexOf(currentTheme)]}`" size="1.75em" />
-            <span class="hidden md:inline">{{ currentTheme }}</span>
-            <svg width="12px" height="12px" class="ml-1 hidden h-3 w-3 fill-current opacity-60 sm:inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path></svg>
-          </div>
-          <ul tabindex="0" class="dropdown-content z-[1] menu menu-sm mt-3 max-h-96 w-56 overflow-y-auto rounded-box bg-base-200 p-2 shadow">
-            <li v-for="(theme, index) in themes" :key="theme">
-              <a @click="currentTheme = theme" :class="{ 'active': currentTheme === theme }">
-                <Icon :name="`mdi:${themeIcons[index]}`" size="1.5em" /> {{ theme }}
-              </a>
-            </li>
-          </ul>
+<div>
+  <!-- Navbar -->
+  <div class="navbar bg-base-300 sticky top-0 z-30">
+    <div class="flex-none lg:hidden">
+      <label for="my-drawer-2" aria-label="open sidebar" class="btn btn-square btn-ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" class="inline-block h-6 w-6 stroke-current"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      </label>
+    </div>
+    <div class="flex-1">
+      <a class="btn btn-ghost text-xl">coinfo</a>
+    </div>
+    <!-- 테마 변경 콤보박스 -->
+    <div class="flex-none">
+      <!-- daisyUI Dropdown으로 교체 -->
+      <div v-show="isDropdownVisible" class="dropdown dropdown-end">
+        <div ref="themeDropdownButton" tabindex="0" role="button" class="btn btn-ghost normal-case">
+          <Icon :name="`mdi:${themeIcons[themes.indexOf(currentTheme)]}`" size="1.75em" />
+          <span class="hidden md:inline">{{ currentTheme }}</span>
+          <svg width="12px" height="12px" class="ml-1 hidden h-3 w-3 fill-current opacity-60 sm:inline-block" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 2048 2048"><path d="M1799 349l242 241-1017 1017L7 590l242-241 775 775 775-775z"></path></svg>
         </div>
+        <ul tabindex="0" class="dropdown-content z-[1] menu menu-sm mt-3 max-h-96 w-56 overflow-y-auto rounded-box bg-base-200 p-2 shadow">
+          <li v-for="(theme, index) in themes" :key="theme">
+            <a @click="currentTheme = theme" :class="{ 'active': currentTheme === theme }">
+              <Icon :name="`mdi:${themeIcons[index]}`" size="1.5em" /> {{ theme }}
+            </a>
+          </li>
+        </ul>
       </div>
     </div>
   </div>
-
-  <div class="drawer-side z-50">
-    <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
-    <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content">
-      <!-- Sidebar content here -->
-      <li class="menu-title">LNB Menu</li>
-      <li><NuxtLink to="/" @click="closeDrawer">Home</NuxtLink></li>
-      <li><NuxtLink to="/about" @click="closeDrawer">About</NuxtLink></li>
-      <li><NuxtLink to="/websocket-test" @click="closeDrawer">websocket-test</NuxtLink></li>
-    </ul>
+  <div class="drawer lg:drawer-open">
+    <input id="my-drawer-2" type="checkbox" class="drawer-toggle" ref="drawerToggle" />
+    <div class="drawer-content p-4">
+      <slot />
+    </div>
+    <div class="drawer-side">
+      <label for="my-drawer-2" aria-label="close sidebar" class="drawer-overlay"></label>
+      <ul class="menu p-4 w-80 min-h-full bg-base-200 text-base-content lg:pt-4">
+        <!-- Sidebar content here -->
+        <li class="menu-title">LNB Menu</li>
+        <li><NuxtLink to="/" @click="closeDrawer">Home</NuxtLink></li>
+        <li><NuxtLink to="/about" @click="closeDrawer">About</NuxtLink></li>
+        <li><NuxtLink to="/websocket-test" @click="closeDrawer">websocket-test</NuxtLink></li>
+      </ul>
+    </div>
   </div>
 </div>
 </template>
