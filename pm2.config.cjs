@@ -3,10 +3,9 @@ module.exports = {
     {
       name: 'coinfo', // PM2에서 표시될 앱 이름
       port: 3000, // 앱이 실행될 포트
-      interpreter: '/home/nhj/.bun/bin/bun', // 인터프리터를 bun으로 설정
       exec_mode: 'cluster', // 클러스터 모드로 실행하여 CPU 코어를 모두 활용
       instances: '1', // CPU 코어 수를 사용하지 않음. 우선 1
-      script: './.output/server/index.mjs', // bun으로 실행할 Nuxt 서버 시작 파일
+      script: 'bun run .output/server/index.mjs', // bun으로 실행할 Nuxt 서버 시작 파일
       env: {
         // 앱에서 process.env.NODE_ENV로 접근 가능
         "NODE_ENV": "production",
