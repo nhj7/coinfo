@@ -3,7 +3,6 @@ module.exports = {
         name: 'coinfo',
         script: './.output/server/index.mjs',
         interpreter: 'bun',
-        args: ' run ',
         instances: 1,
         exec_mode: 'fork',
         env: {

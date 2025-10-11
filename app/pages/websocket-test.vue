@@ -93,7 +93,7 @@ const selectedSymbols = ref(['KRW-BTC']); // 기본적으로 BTC 선택
 const connect = () => {
   // WebSocket URL (개발: ws://localhost:3000, 운영: wss://...)
   const protocol = window.location.protocol === 'https:' ? 'wss:' : 'http:';
-  const wsUrl = `${protocol}//${window.location.hostname}:3000/ws`;
+  const wsUrl = `${protocol}//${window.location.host}/ws`;
 
   console.log('Connecting to:', wsUrl);
 

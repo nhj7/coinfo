@@ -35,8 +35,9 @@ export const useWebSocket = () => {
         // 이미 연결되어 있거나 연결 시도 중이면 중복 실행 방지
         if (state.value.ws) return;
 
-        //console.log('[useWebSocket] Connecting...');
-        const wsUrl = `ws://${window.location.host}/ws`;
+        // 현재 페이지 프로토콜에 따라 ws 또는 wss를 동적으로 선택합니다.
+        const wsProtocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+        const wsUrl = `${wsProtocol}://${window.location.host}/ws`;
         const ws = new WebSocket(wsUrl);
         ws.binaryType = 'arraybuffer';
 
