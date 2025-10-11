@@ -5,7 +5,8 @@ module.exports = {
       port: 3000, // 앱이 실행될 포트
       exec_mode: 'cluster', // 클러스터 모드로 실행하여 CPU 코어를 모두 활용
       instances: '1', // CPU 코어 수를 사용하지 않음. 우선 1
-      script: 'bun run .output/server/index.mjs', // bun으로 실행할 Nuxt 서버 시작 파일
+      script: 'bun run ', // bun으로 실행할 Nuxt 서버 시작 파일
+      args : '.output/server/index.mjs',
       env: {
         // 앱에서 process.env.NODE_ENV로 접근 가능
         "NODE_ENV": "production",
