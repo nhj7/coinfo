@@ -8,7 +8,7 @@ echo "🚀 Starting deployment with Bun..."
 # 1. git 리포지토리에서 최신 변경 사항을 가져옵니다.
 # 'main' 브랜치를 사용하지 않는 경우, 실제 사용하는 브랜치 이름으로 변경하세요.
 echo "1. Pulling latest changes from git..."
-git pull origin main
+git pull
 
 # 2. Bun을 사용하여 의존성을 설치합니다. (npm install 보다 훨씬 빠릅니다)
 echo "2. Installing dependencies with Bun..."
