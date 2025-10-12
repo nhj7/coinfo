@@ -70,7 +70,7 @@ const directionIcon = (direction: number) => {
 
 <template>
   <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">실시간 시세(더미)</h1>
+    <h1 class="text-2xl font-bold mb-4">실시간 시세</h1>
 
     <div class="overflow-x-auto">
       <table class="table table-sm table-pin-rows">

@@ -5,7 +5,7 @@ name: Deploy to Self-Hosted Server
 on:
   push:
     branches:
-      - main # 'main' 브랜치에 코드가 푸시될 때 워크플로우를 실행합니다.
+      - master # 'main' 브랜치에 코드가 푸시될 때 워크플로우를 실행합니다.
 
 # 워크플로우에서 실행될 작업(job)들을 정의합니다.
 jobs:
