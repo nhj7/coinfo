@@ -103,3 +103,61 @@ export function getAllMarketData(): MarketDataStore {
 export function clearExchangeData(exchange: ExchangeType): void {
   marketDataStore.delete(exchange);
 }
+
+// ============================================================================
+// Helper Functions
+// ============================================================================
+
+/**
+ * 쿼트 통화별 필터링
+ */
+export function filterByQuote(tickers: Ticker[], quote: string): Ticker[] {
+    return tickers.filter(ticker => {
+        const [quoteCurrency] = ticker.s.split('-');
+        return quoteCurrency === quote.toUpperCase();
+    });
+}
+
+type SortOption = 'volume' | 'name' | 'change' | 'gainers' | 'losers' | 'active';
+
+/**
+ * 저장된 티커 데이터에서 조건에 맞는 데이터를 조회, 정렬, 제한하는 범용 헬퍼 함수
+ * @param exchange - 거래소 이름
+ * @param options - 필터링, 정렬, 제한 옵션
+ */
+export function queryTickers(
+    exchange: 'upbit',
+    options: {
+        quote?: string; // quote 파라미터를 선택적으로 변경
+        sort?: SortOption;
+        limit?: number;
+    }
+): Ticker[] {
+    const exchangeData = getExchangeData(exchange);
+    if (!exchangeData) {
+        return [];
+    }
+
+    let tickers = Array.from(exchangeData.values());
+
+    // 1. 쿼트 필터링 (quote 옵션이 있을 경우에만 실행)
+    if (options.quote) {
+        tickers = filterByQuote(tickers, options.quote);
+    }
+
+    // 2. 정렬
+    switch (options.sort) {
+        case 'volume': tickers.sort((a, b) => b.p24 - a.p24); break;
+        case 'name': tickers.sort((a, b) => a.s.localeCompare(b.s)); break;
+        case 'change': tickers.sort((a, b) => b.c24 - a.c24); break;
+        case 'gainers': tickers = tickers.filter(t => t.c24 > 0).sort((a, b) => b.c24 - a.c24); break;
+        case 'losers': tickers = tickers.filter(t => t.c24 < 0).sort((a, b) => a.c24 - b.c24); break;
+    }
+
+    // 3. 개수 제한
+    if (options.limit && options.limit > 0) {
+        tickers = tickers.slice(0, options.limit);
+    }
+
+    return tickers;
+}

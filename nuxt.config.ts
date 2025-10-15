@@ -38,10 +38,24 @@ export default defineNuxtConfig({
     experimental: {
       websocket: true,
     },
+    ignore: [
+      '**/*.test.ts',
+      '**/*.spec.ts',
+    ],
   },
 
   vite: {
     plugins: [tailwindcss()],
+    build: {
+      rollupOptions: {
+        external: (id) => {
+          // 테스트 파일과 테스트 유틸리티를 빌드에서 제외
+          return id.includes('.test.') ||
+                 id.includes('.spec.') ||
+                 id.includes('@nuxt/test-utils');
+        },
+      },
+    },
   },
   modules: [
     '@nuxt/content',
@@ -51,6 +65,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxt/scripts',
     '@nuxt/test-utils',
+    '@pinia/nuxt',
   ]
   , css: ["~/assets/css/main.css"],
 

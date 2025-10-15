@@ -1,7 +1,7 @@
 import type { ServerWebSocket } from 'bun';
 import { encode } from '@msgpack/msgpack';
 import {getTickerData} from "~~/server/store/marketData";
-
+import {formatDuration} from "~~/shared/utils/time";
 
 /**
  * 서버 인스턴스를 globalThis에 저장하기 위한 고유 키
@@ -476,20 +476,7 @@ const gracefulShutdown = (signal: string) => {
 export async function getWebSocketStats() {
     const now = Date.now();
     const uptimeMs = now - serverStartTime;
-
-    // uptime을 일/시/분/초로 변환
-    const days = Math.floor(uptimeMs / (1000 * 60 * 60 * 24));
-    const hours = Math.floor((uptimeMs % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-    const minutes = Math.floor((uptimeMs % (1000 * 60 * 60)) / (1000 * 60));
-    const seconds = Math.floor((uptimeMs % (1000 * 60)) / 1000);
-
-    const uptime = days > 0
-        ? `${days}일 ${hours}시간 ${minutes}분 ${seconds}초`
-        : hours > 0
-        ? `${hours}시간 ${minutes}분 ${seconds}초`
-        : minutes > 0
-        ? `${minutes}분 ${seconds}초`
-        : `${seconds}초`;
+    const uptime = formatDuration(uptimeMs);
 
     // Connections 정보
     const clientsList = Array.from(clients.entries()).map(([_ws, data]) => ({

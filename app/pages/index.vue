@@ -1,34 +1,12 @@
 <script setup lang="ts">
-// 샘플 데이터 (나중에 WebSocket으로 대체)
-const tickers = ref<Ticker[]>([
-  {
-    e: 'upbit',
-    s: 'KRW-BTC',
-    p: 95420000,
-    d: 1,
-    c24: 2.35,
-    cp24: 2180000,
-    p24: 245800000000
-  },
-  {
-    e: 'upbit',
-    s: 'KRW-ETH',
-    p: 5240000,
-    d: -1,
-    c24: -1.24,
-    cp24: -65800,
-    p24: 98500000000
-  },
-  {
-    e: 'upbit',
-    s: 'KRW-XRP',
-    p: 2850,
-    d: 1,
-    c24: 5.67,
-    cp24: 153,
-    p24: 45600000000
-  }
-]);
+import { useTickerStore } from '~/stores/tickers';
+import { storeToRefs } from 'pinia';
+import type { Ticker } from '#shared/types';
+
+// Pinia 스토어 사용
+const tickerStore = useTickerStore();
+// storeToRefs를 사용해 스토어의 상태를 반응성을 유지하며 가져옵니다.
+const { items: tickers } = storeToRefs(tickerStore);
 
 // 가격 포맷팅 (천 단위 콤마)
 const formatPrice = (price: number): string => {
@@ -70,7 +48,7 @@ const directionIcon = (direction: number) => {
 
 <template>
   <div class="container mx-auto p-4">
-    <h1 class="text-2xl font-bold mb-4">실시간 시세(더미)</h1>
+    <h1 class="text-2xl font-bold mb-4">실시간 시세</h1>
 
     <div class="overflow-x-auto">
       <table class="table table-sm table-pin-rows">
@@ -84,6 +62,9 @@ const directionIcon = (direction: number) => {
           </tr>
         </thead>
         <tbody>
+          <tr v-if="tickers.length === 0">
+            <td colspan="5" class="text-center">데이터를 불러오는 중입니다...</td>
+          </tr>
           <tr
             v-for="ticker in tickers"
             :key="ticker.s"
@@ -133,7 +114,7 @@ const directionIcon = (direction: number) => {
 
     <!-- 연결 상태 표시 (나중에 WebSocket 상태와 연동) -->
     <div class="mt-4 text-sm text-gray-500">
-      총 {{ tickers.length }}개 코인 (샘플 데이터)
+      총 {{ tickers?.length ?? 0 }}개 코인
     </div>
   </div>
 </template>

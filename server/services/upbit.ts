@@ -8,6 +8,7 @@ import type {
     Timer,
     UpbitMarket
 } from "#shared/types";
+import {formatDuration} from "#shared/utils/time";
 
 const UPBIT_WS_URL = 'wss://api.upbit.com/websocket/v1';
 const UPBIT_MARKET_API = 'https://api.upbit.com/v1/market/all';
@@ -339,7 +340,7 @@ class UpbitConnector implements ExchangeConnector {
         return {
             status: this.calculateStatus(),
             connected: this.isConnected(),
-            uptime: this.getUptime(),
+            uptime: formatDuration(this.getUptime()),
             symbols: {
                 total: this.symbols.length,
                 ...this.getSymbolsByQuote()
